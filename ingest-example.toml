@@ -1,0 +1,37 @@
+[var]
+pixie = "/media/pixie"
+phone = "/media/phone"
+media = "/mnt/fast/jenny"
+dest_folder = '''
+{{ var['media'] }} /
+{{ date.strftime('%Y') }} /
+{{ date.strftime('%m_%B').lower() }}
+'''
+dest_datetime = '''{{ date.strftime('%Y-%m-%d') }}_{{ date.strftime('%H-%M-%S') }}'''
+
+[[ingest]]
+name = "pixie clips"
+source = '''{{ var['pixie'] }}/PRIVATE/M4ROOT/CLIP/C(\d+)\.MP4'''
+destination = '''
+{% date = datetime.strptime(ffprobe['format']['tags']['creation_time'][:19], '%Y-%m-%dT%H:%M:%S') %}
+{{ var['dest_folder'] }} /
+{{ var['dest_datetime'] }}_{{ m[1] }}{{ ext }}
+'''
+
+[[ingest]]
+name = "pixie photos"
+source = '''{{ var['pixie'] }}/DCIM/100MSDCF/DSC(\d+)\.JPG'''
+destination = '''
+{% date = exif['DateTime'] %}
+{{ var['dest_folder'] }} /
+{{ var['dest_datetime'] }}_{{ m[1] }}{{ ext }}
+'''
+
+[[ingest]]
+name = 'phone'
+source = '''{{ var['phone'] }}/DCIM/Camera/(\d{8})_(\d{6})(?:_(\d+))?\.(jpg|mp4)'''
+destination = '''
+{% date = datetime.strptime(f'{m[1]}{m[2]}', '%Y%m%d%H%M%S') %}
+{{ var['dest_folder'] }} /
+{{ var['dest_datetime'] }}{{ f'_{m[3]}' if m[3] else '' }}{{ ext }}
+'''

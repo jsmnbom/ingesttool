@@ -1,0 +1,4 @@
+venv/
+/ingest.db*
+ingest.toml
+__pycache__
